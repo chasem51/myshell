@@ -20,21 +20,21 @@ Usage:
 `<./myshell>` 
 ~starts an interative command line interpreter environment called "myshell". The prompt accepts certain cmd operators for purposes of:
 
-1. Program files: 
-`<cmd>` 
+1. Program file(s): 
+`cmd` 
 2. Sequence of commands: 
-`<cmd; cmd>`
+`cmd; cmd`
 3. Stdout redirection: 
-`<cmd > output-file>`
+`cmd > output-file`
 OR 
-`<cmd 1> output-file>`
+`cmd 1> output-file`
 4. Stderror redirection: 
-`<cmd 2> output-file>`
+`cmd 2> output-file`
 5. Stdout AND Stderror redirection: 
-`<cmd &> output-file>`
+`cmd &> output-file`
 6. Stdinput redirection: 
-`<cmd < input-file>`
+`cmd < input-file`
 7. Unidirectional piping: 
-`<cmd1 | cmd2 | cmd3>`
+`cmd1 | cmd2 | cmd3`
 8. Background cmds: 
-`<cmd &>`
+`cmd &`
