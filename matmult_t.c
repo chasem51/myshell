@@ -29,15 +29,15 @@
 
 typedef struct
 {
-	int row;
-	int col;
-	int *data;
+    int row;
+    int col;
+    int *data;
 } matrix;
 
 typedef struct
 {
-	int val;
-	int loc;
+    int val;
+    int loc;
 } childExec;
 
 
@@ -180,7 +180,7 @@ void my_thr_create(void (*func) (int), int thr_id){
 void multiply(int loc)
 {
     //printf("test10\n");
-	//childExec result;
+    //childExec result;
     //int col2 = mTwo->col;
         //printf("test11\n");
 
@@ -190,11 +190,11 @@ void multiply(int loc)
     int col = (loc % col2);
     //printf("col: %d\n", col);
 
-	int val = 0;
+    int val = 0;
 
     //printf("test4\n");
-	for (int i = 0; i < col1; i++) {
-		//printf("mOne: %d\n", mOne[row][i]);
+    for (int i = 0; i < col1; i++) {
+        //printf("mOne: %d\n", mOne[row][i]);
         //printf("mTwo: %d\n", mTwo[i][col]);
         val += mOne[row][i] * mTwo[i][col];
     }
@@ -211,7 +211,7 @@ void multiply(int loc)
     //printf("test9\n");
     //write(toggle[1], &result, sizeof(result));
 
-	//close(toggle[1]); 
+    //close(toggle[1]); 
 }
 
 
@@ -219,8 +219,8 @@ int main(int argc, char *argv[]) {
 
     //childExec result;
 
-	//matrix *mOne = malloc(sizeof(matrix));	   // Space is set aside for matrix one
-    //matrix *mTwo = malloc(sizeof(matrix));	   // Space is set aside for matrix two
+    //matrix *mOne = malloc(sizeof(matrix));       // Space is set aside for matrix one
+    //matrix *mTwo = malloc(sizeof(matrix));       // Space is set aside for matrix two
     //matrix *mProduct = malloc(sizeof(matrix)); // Space is set aside for matrix
 
     /* 
@@ -231,14 +231,15 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     } */
 
-    char const* const fileName1 = argv[1]; /* should check that argc > 1 */
-    FILE* file1 = fopen(fileName1, "r"); /* should check the result */
+    //char const* const fileName1 = argv[1]; /* should check that argc > 1 */
+    //FILE* file1 = fopen(fileName1, "r"); /* should check the result */
     char line[256];
 
     
     int m2 = 0;
 
-    while (fgets(line, sizeof(line), file1)) {
+    while (fgets(line, sizeof(line), stdin) != NULL) {
+        
         if(m2 == 0) {
             row1++;
             if(row1 == 1) {
@@ -272,6 +273,20 @@ int main(int argc, char *argv[]) {
                 row1--;
                 m2++;
             }
+            else{
+
+            int val = 0, col = 0;
+            char *token = strtok(line, " ");
+
+            //printf("%s\n", buf);
+
+            while (token) {
+                val = atoi(token);
+                mOne[row1 - 1][col] = val;
+                col++;
+                token = strtok(NULL, " ");
+            }
+            }
             //printf("%s \n", line); 
         }
 
@@ -300,6 +315,19 @@ int main(int argc, char *argv[]) {
                 }
                 //col2--;
             }
+
+            int val = 0, col = 0;
+            char *token = strtok(line, " ");
+
+            //printf("%s\n", buf);
+
+            while (token) {
+                val = atoi(token);
+                mTwo[row2 - 1][col] = val;
+                col++;
+                token = strtok(NULL, " ");
+            }
+
         }
     }
 
@@ -313,52 +341,54 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    fclose(file1);
-    file1 = fopen(fileName1, "r");
+   /*  fclose(file1);
+    file1 = fopen(fileName1, "r"); */
 
     // mOne->row = row1;
     // mOne->col = col1;
 
-    mOne[row1][col1];
+    //mOne[row1][col1];
     // Allocates memory for the size of the matrix and creates pointer to it
-	//mOne->data = malloc(sizeof(int) * mOne->row * mOne->col);
+    //mOne->data = malloc(sizeof(int) * mOne->row * mOne->col);
 
     // Used to iterate through the file and store the values
-	for (int i = 0; i < row1; i++)
-		for (int j = 0; j < col1; j++)
-			fscanf(file1, "%d", &mOne[i][j]);
+    /* for (int i = 0; i < row1; i++)
+        for (int j = 0; j < col1; j++)
+            fscanf(file1, "%d", &mOne[i][j]); */
 
     // mTwo->row = row2;
     // mTwo->col = col2;
 
-    mTwo[row2][col2];
+    //mTwo[row2][col2];
 
     // Allocates memory for the size of the matrix and creates pointer to it
-	//mTwo->data = malloc(sizeof(int) * mTwo->row * mTwo->col);
+    //mTwo->data = malloc(sizeof(int) * mTwo->row * mTwo->col);
 
     // Used to iterate through the file and store the values
-	for (int i = 0; i < row2; i++)
-		for (int j = 0; j < col2; j++)
-			fscanf(file1, "%d", &mTwo[i][j]);
+    /* for (int i = 0; i < row2; i++)
+        for (int j = 0; j < col2; j++)
+            fscanf(file1, "%d", &mTwo[i][j]); */
 
 
-	fclose(file1);
+    //fclose(file1);
 
     /* printf("matrix 1\n");
     for (int i = 0; i < mOne->row; i++)
-	{
-		for (int j = 0; j < mOne->col; j++)
-			printf("%d\t", mOne->data[i * mOne->col + j]);
-		printf("\n");
-	}
+    {
+        for (int j = 0; j < mOne->col; j++)
+            printf("%d\t", mOne->data[i * mOne->col + j]);
+        printf("\n");
+    }
+    printf("\n");
 
     printf("\nmatrix 2\n");
     for (int i = 0; i < mTwo->row; i++)
-	{
-		for (int j = 0; j < mTwo->col; j++)
-			printf("%d\t", mTwo->data[i * mTwo->col + j]);
-		printf("\n");
-	} */
+    {
+        for (int j = 0; j < mTwo->col; j++)
+            printf("%d\t", mTwo->data[i * mTwo->col + j]);
+        printf("\n");
+    }
+    printf("\n"); */
 
     //mProduct->data = malloc(sizeof(int) * mOne->row * mTwo->col);
     mProduct[row1][col2];
@@ -369,7 +399,7 @@ int main(int argc, char *argv[]) {
 
 
     for (int i = 0; i < row1; i++){
-		for (int j = 0; j < col2; j++){
+        for (int j = 0; j < col2; j++){
 
             int thr_id = ((col2 * i) + j);
             
@@ -384,9 +414,9 @@ int main(int argc, char *argv[]) {
             /* pid_t pid = fork();
 
             if (pid < 0) {
-				printf("Forking failure, exiting\n");
-				exit(EXIT_FAILURE);
-			}
+                printf("Forking failure, exiting\n");
+                exit(EXIT_FAILURE);
+            }
 
             else if (pid == 0) {
                 close(toggleRW[0]); // Close Read
@@ -394,16 +424,16 @@ int main(int argc, char *argv[]) {
                 int thr_id = ((col2 * i) + j);
                 my_thr_create(multiply, thr_id);
 
-				multiply(toggleRW, mOne, mTwo, children, i, j); */
+                multiply(toggleRW, mOne, mTwo, children, i, j); */
 
-				// Freeing child malloc
-/* 				free(mOne->data);
-				free(mTwo->data);
-				free(mProduct->data);
-				free(mOne);
-				free(mTwo);
-				free(mProduct); */
-				/* exit(EXIT_SUCCESS);
+                // Freeing child malloc
+/*              free(mOne->data);
+                free(mTwo->data);
+                free(mProduct->data);
+                free(mOne);
+                free(mTwo);
+                free(mProduct); */
+                /* exit(EXIT_SUCCESS);
             }
             children++;
         */
@@ -420,50 +450,55 @@ int main(int argc, char *argv[]) {
     //printf("test\n");
     //close(toggleRW[1]); 
 
-	//int finished = 0;
+    //int finished = 0;
 
     // Used to load in the values from the child process into the product matrix
-	/* while ((finished = read(toggleRW[0], &result, sizeof(childExec))))
-		mProduct->data[result.loc] = result.val;
+    /* while ((finished = read(toggleRW[0], &result, sizeof(childExec))))
+        mProduct->data[result.loc] = result.val;
  */
-	// Busy wait, required for proper execution
-	/* for (int i = 0; i < (mOne->row * mTwo->col); i++)
-		wait(0); 
+    // Busy wait, required for proper execution
+    /* for (int i = 0; i < (mOne->row * mTwo->col); i++)
+        wait(0); 
  */
 
     /* fprintf(stdout, "\n matrix1\n");
-	for (int i = 0; i < row1; i++)
-	{
-		for (int j = 0; j < col1; j++)
-			fprintf(stdout, "%d\t", mOne[i][j]);
-		fprintf(stdout, "\n");
-	}
+    for (int i = 0; i < row1; i++)
+    {
+        for (int j = 0; j < col1; j++)
+            fprintf(stdout, "%d\t", mOne[i][j]);
+        fprintf(stdout, "\n");
+    }
+
+    fprintf(stdout, "\n");
 
         fprintf(stdout, "\n matrix2\n");
-	for (int i = 0; i < row2; i++)
-	{
-		for (int j = 0; j < col2; j++)
-			fprintf(stdout, "%d\t", mTwo[i][j]);
-		fprintf(stdout, "\n");
-	} */
+    for (int i = 0; i < row2; i++)
+    {
+        for (int j = 0; j < col2; j++)
+            fprintf(stdout, "%d\t", mTwo[i][j]);
+        fprintf(stdout, "\n");
+    }
+    fprintf(stdout, "\n"); */
 
-	
+    
     // This is used to display the resulting matrix
     fprintf(stdout, "\n product matrix\n");
-	for (int i = 0; i < row1; i++)
-	{
-		for (int j = 0; j < col2; j++)
-			fprintf(stdout, "%d\t", mProduct[i][j]);
-		fprintf(stdout, "\n");
-	}
+    for (int i = 0; i < row1; i++)
+    {
+        for (int j = 0; j < col2; j++)
+            fprintf(stdout, "%d\t", mProduct[i][j]);
+        fprintf(stdout, "\n");
+    }
 
-	// Freeing parent malloc
-	/* free(mOne->data);
-	free(mTwo->data);
-	free(mProduct->data);
-	free(mOne);
-	free(mTwo);
-	free(mProduct); */
+    fprintf(stdout, "\n");
+
+    // Freeing parent malloc
+    /* free(mOne->data);
+    free(mTwo->data);
+    free(mProduct->data);
+    free(mOne);
+    free(mTwo);
+    free(mProduct); */
 
     return 0;
     

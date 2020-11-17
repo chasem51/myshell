@@ -21,18 +21,22 @@ int col1 = 1;
 
 int main(int argc, char *argv[]) {
 
-    char buf[256];
-    int mat1[ROW][COL];
-    int transposedmat[ROW][COL];
+    char buf[128];
+    /* int mat1[ROW][COL];
+    int transposedmat[ROW][COL]; */
 
 
     int j = 0;
     //printf("what's tje ja[[s");
-    fgets(buf, 256, stdin);
-    //printf("testing\n");
-    while (isspace(buf[0]) == 0) {
+    buf[0] = 'c';
+
+
+    //isspace(buf[0]) == 0
+    //strlen(buf) != 0
+    while (fgets(buf, 128, stdin) != NULL) {
+        //fgets(buf, 128, stdin);
         row1++;
-        //printf("test");
+        //printf("test %s\n", buf);
         if(row1 == 1) {
             for (int i = 0; i < strlen(buf); i++) {
                 //printf("line %s \n", line[i]);
@@ -46,7 +50,10 @@ int main(int argc, char *argv[]) {
                         //printf("test %s \n", &line[i]);
                             col1++;
                             //printf("buf: %c\n", buf[i-1]);
-                            mOne[row1 - 1][col1 - 2] = atoi(&buf[i - 1]);
+
+                            
+
+                            //mOne[row1 - 1][col1 - 2] = atoi(&buf[i - 1]);
                         }
 
                         if (i == strlen(buf) - 1)
@@ -58,7 +65,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        else {
+        /* else {
             j = 0;
             for (int i = 0; i < strlen(buf); i++) {
                 //printf("TESSSSSSSSSSSSST %d \n", buf[i]);
@@ -72,30 +79,53 @@ int main(int argc, char *argv[]) {
                             //printf("test %s \n", &line[i]);
                             //col1++;
                             //printf("buf: %c\n", buf[i-1]);
-                            mOne[row1 - 1][j] = atoi(&buf[i - 1]);
-                            j++;
-                        }
+/* 
+                            int val = 0, coll = 0;
+                            char *token = strtok(buf, " ");
+
+                            while (token) {
+                                val = atoi(token);
+                                mOne[row1 - 1][coll] = val;
+                                coll++;
+                                token = strtok(NULL, " ");
+                            } */
+
+                           /*  mOne[row1 - 1][j] = atoi(&buf[i - 1]);
+                            j++; */
+                        /*}
 
 
                     }
                 }     
             }
-            
-        }
+        } */
 
-        fgets(buf, 256, stdin);
+        int val = 0, col = 0;
+        char *token = strtok(buf, " ");
+
+        //printf("%s\n", buf);
+
+        while (token) {
+            val = atoi(token);
+            mOne[row1 - 1][col] = val;
+            col++;
+            token = strtok(NULL, " ");
+        }
+        //fgets(buf, 128, stdin);
     }
     
-    /* printf("row: %d\ncol: %d\n", row1, col1); */
+    //printf("row: %d\ncol: %d\n", row1, col1);
 
     //mOne[row1][col1];
 
     /* for (int i = 0; i < row1; i++)
-	{
-		for (int j = 0; j < col1; j++)
-			printf("%d\t", mOne[i][j]);
-		printf("\n");
-	} */
+    {
+        for (int j = 0; j < col1; j++)
+            printf("%d\t", mOne[i][j]);
+        printf("\n");
+    }
+
+    printf("\n"); */
 
     mTrans[col1][row1];
 
@@ -106,13 +136,17 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    printf("Transposed matrix:\n");
+
     //prints resulting matrix
     for (int i = 0; i < col1; i++)
-	{
-		for (int j = 0; j < row1; j++)
-			printf("%d\t", mTrans[i][j]);
-		printf("\n");
-	}
+    {
+        for (int j = 0; j < row1; j++)
+            fprintf(stdout, "%d\t", mTrans[i][j]);
+        fprintf(stdout, "\n");
+    }
+
+    fprintf(stdout, "\n");
 
     return 1;
 }
