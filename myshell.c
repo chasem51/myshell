@@ -13,9 +13,9 @@ CS410 Assignment 2
 #include <sys/stat.h>
 #include <errno.h>
 #include <signal.h>
-#include "readline-8.1-rc2/readline.h"
+#include <readline/readline.h>
 
-#define myshell_pipe(x,y) _myshell_pipe(x,y,-1)
+#define my_pipe(x,y) _my_pipe(x,y,-1)
 
 // pid of parent that we may kill if necessary
 pid_t parent_fork = -1;
@@ -127,7 +127,7 @@ int redirection(char *args[]) {
    return redirect_flag;
 }
 
-void myshell_collapse(char *new_args[], char *old_args[]) {
+void collapse_shell(char *new_args[], char *old_args[]) {
    int i;
    int newarg_index=0;
    void* impossibly_large = (void*) -1;
@@ -137,7 +137,7 @@ void myshell_collapse(char *new_args[], char *old_args[]) {
    new_args[newarg_index] = NULL; // place null EOF 
 }
 
-void _myshell_pipe(char* args1[], char* args2[], int fd_read) {
+void _my_pipe(char* args1[], char* args2[], int fd_read) {
    int i, multiple_pipes_flag = 0;
    int fd[2];
    char* args3[my_sizeof(args1)];
@@ -149,11 +149,10 @@ void _myshell_pipe(char* args1[], char* args2[], int fd_read) {
       for(i=0; args2[i] != NULL; i++)
          if (strcmp(args2[i], "|") == 0) {
             int j;
-            int args3_ind = 0;
+            int args3_index = 0;
             for (j=i+1; args2[j] != NULL; j++)
-               args3[args3_ind++] = args2[j];
-   
-            args3[args3_ind] = NULL;
+               args3[args3_index++] = args2[j];
+            args3[args3_index] = NULL;
             args2[i] = NULL;
             break;
       }
@@ -188,7 +187,36 @@ void _myshell_pipe(char* args1[], char* args2[], int fd_read) {
       parent_fork = -1;
       
       if (multiple_pipes_flag)
-         _myshell_pipe(args2, args3, fd[0]);
+         _my_pipe(args2, args3, fd[0]);
+   }
+}
+
+// fork child, then call _exec 
+void do_cmd(char* args[], int bg) {
+   pid_t cpid, wpid;
+   int status;
+   cpid = fork();
+
+   if (cpid < 0) {
+      printf("myshell: error: pipe can't communicate from parent-child process\n");
+      return;
+   }
+   else if (cpid == 0) { // child
+      if (redirection(args)) {
+         char *new_args[my_sizeof(args)];
+         collapse_shell(new_args, args); // make pipe receive EOF
+         _exec(new_args);
+      }
+      else 
+         _exec(args);
+   }
+   else { // parent
+      if (!bg) {
+         parent_fork = cpid;
+         wpid = waitpid(cpid, &status, 0);
+         parent_fork = -1;
+         fflush(stdout); // allows "clear"?
+      }
    }
 }
 
@@ -227,7 +255,7 @@ void read_cmd(char *command) {
                break;
 
             if ( command[i+1] != '\0') {
-               printf("myshell: syntax error near '&'\n");
+               printf("myshell: syntax error after '&'\n");
                return;
             }
             ampersand_flag = 1;
@@ -257,19 +285,19 @@ void read_cmd(char *command) {
    }
 
    if (pipe_flag) {
-      // finds pipe operator, then passes it to myshell_pipe 
+      // finds pipe operator, then passes it to my_pipe 
       for (i=0; args[i] != NULL; i++) {
          if (strcmp(args[i], "|") == 0) {
             args[i] = NULL;
 
             char* args2[my_sizeof(args)];
             int j;
-            int args2_ind = 0;
+            int args2_index = 0;
             for (j=i+1; args[j] != NULL; j++)
-               args2[args2_ind++] = args[j];
+               args2[args2_index++] = args[j];
 
-            args2[args2_ind] = NULL;
-            myshell_pipe(args, args2);
+            args2[args2_index] = NULL;
+            my_pipe(args, args2);
          }
       }
    }
@@ -278,73 +306,47 @@ void read_cmd(char *command) {
    }
 }
 
-
-// fork child, then call _exec 
-void do_cmd(char* args[], int bg) {
-   pid_t cpid, wpid;
-   int status;
-   cpid = fork();
-
-   if (cpid < 0) {
-      printf("myshell: error: pipe can't communicate from parent-child process\n");
-      return;
-   }
-   else if (cpid == 0) { // child
-
-      if (redirection(args)) {
-         char *new_args[my_sizeof(args)];
-         myshell_collapse(new_args, args); // make pipe receive EOF
-         _exec(new_args);
-      }
-      else 
-         _exec(args);
-
-   }
-   else { // parent
-      if (!bg) {
-         parent_fork = cpid;
-         wpid = waitpid(cpid, &status, 0);
-         parent_fork = -1;
-         fflush(stdout); // allows "clear"?
-      }
-   }
-
-}
-
 static void handle_sigchld(int sig, siginfo_t *siginfo, void *context) {
    int status;
-   pid_t pid;
-   pid = wait(&status);
+   while(waitpid(-1,&status,WNOHANG) > 0) {}
 }
 
 static void handle_sigint(int sig, siginfo_t *siginfo, void *context) {
    if (parent_fork > 0)
       kill(parent_fork, SIGINT); // allows CTRL+Z // CTRL+C
+   if(isatty(0)) fprintf(stdout, "\n");
 }
 
 int main() {
-   struct sigaction child_act; // data to examine/change signal action(s)
-   memset(&child_act,'\0', sizeof(child_act));
-   child_act.sa_sigaction = handle_sigchld;
+   struct sigaction sigchild_action, sigint_action; // data to examine/change signal action(s)
+   memset(&sigchild_action,'\0', sizeof(sigchild_action));
+   sigchild_action.sa_sigaction = handle_sigchld;
 
-   struct sigaction int_act;
-   memset(&int_act, '\0', sizeof(int_act));
-   int_act.sa_sigaction = handle_sigint;
+   memset(&sigint_action, '\0', sizeof(sigint_action));
+   sigint_action.sa_sigaction = handle_sigint;
 
-   if (sigaction(SIGCHLD, &child_act, NULL) < 0) {
+   if (sigaction(SIGCHLD, &sigchild_action, NULL) < 0) {
       printf("sigaction error\n");
       exit(-1);
    }
 
-   if (sigaction(SIGINT, &int_act, NULL) < 0) {
+   if (sigaction(SIGINT, &sigint_action, NULL) < 0) {
       printf("sigaction error\n");
       exit(-1);
    }
 
    char *line;
+   ssize_t linebuf = 0;
 
    while (1) {
       line = readline("myshell> ");
+      /*
+      if(getline(&line, &linebuf, stdin) == -1){
+         if(isatty(0)) fprintf(stdout, "\n");
+         break;
+      }
+      */
+      if(line[0] == '\n') { continue; }
       read_cmd(line);
    }
 }
