@@ -58,7 +58,7 @@ void _exec(char *args[]) {
                          break;
                       }
          default: {
-                     printf("%s: unknown error\n", args[0], errno);
+                     printf("%s: unknown error %d\n", args[0], errno);
                      break;
                   }
       }
