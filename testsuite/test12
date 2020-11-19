@@ -1,0 +1,2 @@
+sleep 10
+# pressing ctrl+C should quit from all foreground processes

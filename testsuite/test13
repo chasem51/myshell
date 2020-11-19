@@ -1,0 +1,3 @@
+mkfifo fifo
+awk '{print $1}' fifo > out1 &
+cat < data | tee fifo | awk '{print $2}' > out2 
